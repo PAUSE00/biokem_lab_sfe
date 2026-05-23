@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #00f0ff; /* Glowing Neon Cyan as primary */
+  --color-primary-foreground: #070b11; /* Dark text on primary */
+  
+  --color-chem-dark: #070b11; /* Midnight background */
+  --color-chem-panel: #0d131f; /* Charcoal panel background */
+  --color-chem-border: #1e293b; /* Cyber borders */
+  
+  --color-cyber-cyan: #00f0ff;
+  --color-cyber-lime: #a3e635;
+  --color-cyber-rose: #ff2e63;
+  --color-cyber-orange: #f59e0b;
+}
+
+:root {
+  --primary: 188 100% 50%; /* #00f0ff cyan */
+  --primary-foreground: 220 40% 5%; /* #070b11 */
+  background-color: #070b11;
+  color: #f8fafc;
+}
+
+body {
+  margin: 0;
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #070b11;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar - thin, clean, clinical cyber style */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070b11;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+  border: 1px solid #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+/* Glassmorphism panel styling */
+.glass-panel {
+  background: rgba(13, 19, 31, 0.75);
+  backdrop-blur: 8px;
+  border: 1px solid rgba(30, 41, 59, 0.7);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+}
+
+.glass-panel-hover:hover {
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+  background: rgba(15, 23, 42, 0.85);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sci-fi glow effects */
+.glow-cyan {
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+.glow-lime {
+  text-shadow: 0 0 8px rgba(163, 230, 53, 0.5);
+}
+
+.glow-rose {
+  text-shadow: 0 0 8px rgba(255, 46, 99, 0.5);
+}
+
+.shadow-cyan-glow {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+.shadow-lime-glow {
+  box-shadow: 0 0 15px rgba(163, 230, 53, 0.2);
+}
+
+.shadow-rose-glow {
+  box-shadow: 0 0 15px rgba(255, 46, 99, 0.2);
+}
+
+/* Telemetry digital look inputs */
+input, select, textarea {
+  font-size: 0.8125rem !important; /* ~13px */
+  line-height: 1.25rem !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #0d131f inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+/* Keyframe animations */
+@keyframes pulse-cyan {
+  0%, 100% { opacity: 0.5; box-shadow: 0 0 5px rgba(0, 240, 255, 0.2); }
+  50% { opacity: 1; box-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
+}
+
+.animate-pulse-cyan {
+  animation: pulse-cyan 2s infinite ease-in-out;
+}
+
+@keyframes sweep-laser {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
