@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Beaker, Home, Users, LogOut, FileText, Activity, Bell, AlertCircle, CheckCircle2, Calendar, Package, History, Radio, ChevronLeft } from 'lucide-react';
+import { 
+  Beaker, Home, Users, LogOut, FileText, Bell, AlertCircle, CheckCircle2, 
+  Calendar, Package, Radio, ChevronLeft, Droplets, ShieldCheck, Cpu, 
+  Wrench, Sprout, ClipboardList, Award, Settings 
+} from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../services/AuthContext';
 import LaboratoryBackground from '../components/LaboratoryBackground';
@@ -59,22 +63,45 @@ export default function DashboardLayout() {
     }
   };
 
-  // Base navigation menu items
-  const menuItems = [
-    { icon: Home, label: 'Tableau de Bord', path: '/dashboard', roles: ['Admin', 'Responsable', 'Technicien'] },
-    { icon: Beaker, label: 'Échantillons', path: '/samples', roles: ['Admin', 'Responsable', 'Technicien'] },
-    { icon: Activity, label: 'Analyses', path: '/analyses', roles: ['Admin', 'Responsable', 'Technicien'] },
-    { icon: FileText, label: 'Rapports', path: '/reports', roles: ['Admin', 'Responsable', 'Technicien'] },
-    { icon: Calendar, label: 'Planification', path: '/planning', roles: ['Admin', 'Responsable', 'Technicien'] },
-    { icon: Package, label: 'Stocks & Réactifs', path: '/stock', roles: ['Admin', 'Responsable'] },
-    { icon: History, label: 'Registre d\'Audit', path: '/audit', roles: ['Admin', 'Responsable'] },
-    { icon: Users, label: 'Utilisateurs', path: '/users', roles: ['Admin'] },
+  // Grouped menu items structure
+  const menuGroups = [
+    {
+      title: 'TÉLÉMÉTRIE',
+      items: [
+        { icon: Home, label: 'Tableau de Bord', path: '/dashboard', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: ClipboardList, label: 'Demandes Analyses', path: '/demandes', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: Users, label: 'Clients', path: '/clients', roles: ['Admin', 'Responsable', 'Technicien'] },
+      ]
+    },
+    {
+      title: 'WORKFLOW CLINIQUE',
+      items: [
+        { icon: Beaker, label: 'Échantillons', path: '/samples', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: Wrench, label: 'Préparation', path: '/preparation', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: Sprout, label: 'Analyses Sol', path: '/analyses-sol', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: Droplets, label: 'Analyses Eau', path: '/analyses-eau', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: ShieldCheck, label: 'Validation', path: '/validation', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: FileText, label: 'Rapports', path: '/reports', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: Calendar, label: 'Planning', path: '/planning', roles: ['Admin', 'Responsable', 'Technicien'] },
+      ]
+    },
+    {
+      title: 'QUALITÉ & STOCK',
+      items: [
+        { icon: Cpu, label: 'Équipements', path: '/equipements', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: Radio, label: 'Calibration', path: '/calibration', roles: ['Admin', 'Responsable', 'Technicien'] },
+        { icon: Package, label: 'Stock & Réactifs', path: '/stock', roles: ['Admin', 'Responsable'] },
+        { icon: Award, label: 'Qualité ISO 17025', path: '/qualite', roles: ['Admin', 'Responsable'] },
+        { icon: Bell, label: 'Notifications', path: '/notifications', roles: ['Admin', 'Responsable', 'Technicien'] },
+      ]
+    },
+    {
+      title: 'CONFIGURATION',
+      items: [
+        { icon: Settings, label: 'Administration', path: '/users', roles: ['Admin'] },
+      ]
+    }
   ];
-
-  // Filter menu items by active user role
-  const visibleMenuItems = menuItems.filter(item => 
-    user && item.roles.includes(user.role)
-  );
 
   const getInitials = (name: string) => {
     if (!name) return '??';
@@ -94,7 +121,7 @@ export default function DashboardLayout() {
       <aside className={`${isCollapsed ? 'w-16' : 'w-60'} bg-[#0d131f]/80 backdrop-blur-md border-r border-[#1e293b] flex flex-col z-20 shrink-0 transition-all duration-300`}>
         {/* Brand Header */}
         {!isCollapsed ? (
-          <div className="h-14 flex items-center justify-between px-4 border-b border-[#1e293b]">
+          <div className="h-14 flex items-center justify-between px-4 border-b border-[#1e293b] shrink-0">
             <div className="flex items-center gap-2">
               <div className="bg-[#00f0ff]/10 border border-[#00f0ff]/30 p-2 rounded-lg text-[#00f0ff] shadow-[0_0_10px_rgba(0,240,255,0.15)] animate-pulse">
                 <Beaker className="w-4 h-4" />
@@ -113,7 +140,7 @@ export default function DashboardLayout() {
             </button>
           </div>
         ) : (
-          <div className="h-14 flex items-center justify-center border-b border-[#1e293b]">
+          <div className="h-14 flex items-center justify-center border-b border-[#1e293b] shrink-0">
             <button 
               onClick={toggleSidebar} 
               className="p-2 bg-[#00f0ff]/10 border border-[#00f0ff]/30 rounded-lg text-[#00f0ff] hover:bg-[#00f0ff]/20 transition-all cursor-pointer relative group shadow-[0_0_10px_rgba(0,240,255,0.1)]"
@@ -127,37 +154,50 @@ export default function DashboardLayout() {
         )}
 
         {/* Sidebar Nav links */}
-        <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
-          {!isCollapsed && (
-            <div className="px-2 mb-3 text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">
-              Main Modules
-            </div>
-          )}
-          {visibleMenuItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                `group flex items-center ${isCollapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3.5 py-2.5'} rounded-lg text-xs font-bold transition-all duration-300 relative ${
-                  isActive
-                    ? 'bg-[#00f0ff] text-[#070b11] shadow-[0_0_15px_rgba(0,240,255,0.25)] font-extrabold'
-                    : 'text-slate-400 hover:bg-[#151c2c] hover:text-[#00f0ff]'
-                }`
-              }
-            >
-              <item.icon className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" />
-              {!isCollapsed && <span>{item.label}</span>}
-              {isCollapsed && (
-                <span className="absolute left-full ml-3 px-2 py-1 rounded bg-[#0d131f] border border-[#1e293b] text-[9px] text-slate-200 font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-30 shadow-2xl">
-                  {item.label}
-                </span>
-              )}
-            </NavLink>
-          ))}
+        <nav className="flex-grow px-3 py-4 space-y-4 overflow-y-auto min-h-0">
+          {menuGroups.map((group) => {
+            // Filter group items by active user role
+            const visibleItems = group.items.filter(item => 
+              user && item.roles.includes(user.role)
+            );
+
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={group.title} className="space-y-1">
+                {!isCollapsed && (
+                  <div className="px-2.5 mb-1.5 text-[8.5px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+                    {group.title}
+                  </div>
+                )}
+                {visibleItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `group flex items-center ${isCollapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3.5 py-2.5'} rounded-lg text-xs font-bold transition-all duration-300 relative ${
+                        isActive
+                          ? 'bg-[#00f0ff] text-[#070b11] shadow-[0_0_15px_rgba(0,240,255,0.25)] font-extrabold'
+                          : 'text-slate-400 hover:bg-[#151c2c] hover:text-[#00f0ff]'
+                      }`
+                    }
+                  >
+                    <item.icon className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" />
+                    {!isCollapsed && <span>{item.label}</span>}
+                    {isCollapsed && (
+                      <span className="absolute left-full ml-3 px-2 py-1 rounded bg-[#0d131f] border border-[#1e293b] text-[9px] text-slate-200 font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-30 shadow-2xl">
+                        {item.label}
+                      </span>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
+            );
+          })}
         </nav>
 
         {/* Logout section */}
-        <div className={`p-4 border-t border-[#1e293b] bg-[#090e18]/60 ${isCollapsed ? 'flex justify-center' : ''}`}>
+        <div className={`p-4 border-t border-[#1e293b] bg-[#090e18]/60 shrink-0 ${isCollapsed ? 'flex justify-center' : ''}`}>
           <button 
             onClick={logout}
             className={`group flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} py-2.5 w-full rounded-lg text-xs font-bold text-slate-400 hover:bg-rose-500/10 hover:text-[#ff2e63] border border-transparent hover:border-[#ff2e63]/25 transition-all duration-300 cursor-pointer relative`}
@@ -222,7 +262,7 @@ export default function DashboardLayout() {
                           <div className={`p-1.5 rounded shrink-0 mt-0.5 ${iconColor}`}>
                             <Icon className="w-3.5 h-3.5" />
                           </div>
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-grow min-w-0">
                             <p className={`text-[11px] leading-relaxed font-sans ${!n.read_at ? 'text-slate-100 font-bold' : 'text-slate-400'}`}>{n.message}</p>
                             <span className="text-[9px] font-mono text-slate-500 mt-1 block">{new Date(n.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                           </div>
