@@ -134,7 +134,7 @@
         </tr>
         <tr>
             <td class="meta-label">Client :</td>
-            <td class="meta-value">Client #{{ $analysis->sample->client_id ?? 'N/D' }}</td>
+            <td class="meta-value">{{ $analysis->sample && $analysis->sample->client ? $analysis->sample->client->name : ('Client #' . ($analysis->sample->client_id ?? 'N/D')) }}</td>
             <td class="meta-label">Date de Validation :</td>
             <td class="meta-value">{{ $analysis->validated_at ? \Carbon\Carbon::parse($analysis->validated_at)->format('d/m/Y H:i') : 'N/D' }}</td>
         </tr>
@@ -146,7 +146,114 @@
         </tr>
     </table>
 
-    <div class="title">Résultats des Mesures</div>
+    @if(isset($analysis->metadata) && is_array($analysis->metadata))
+        @php $meta = $analysis->metadata; @endphp
+        @if(isset($meta['module']) && $meta['module'] === 'sol')
+            <div class="title">Informations de la Parcelle & Réception</div>
+            <table class="meta-section">
+                <tr>
+                    <td class="meta-label">Nom du Client :</td>
+                    <td class="meta-value">{{ $meta['client_name'] ?? 'N/D' }}</td>
+                    <td class="meta-label">Région / Commune :</td>
+                    <td class="meta-value">{{ $meta['region'] ?? 'N/D' }} / {{ $meta['commune'] ?? 'N/D' }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Téléphone :</td>
+                    <td class="meta-value">{{ $meta['client_phone'] ?? 'N/D' }}</td>
+                    <td class="meta-label">GPS Coords :</td>
+                    <td class="meta-value">{{ $meta['gps'] ?? 'N/D' }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Culture Actuelle :</td>
+                    <td class="meta-value">{{ $meta['current_culture'] ?? 'N/D' }}</td>
+                    <td class="meta-label">Surface :</td>
+                    <td class="meta-value">{{ $meta['surface'] ?? 'N/D' }} ha</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Culture Prévue :</td>
+                    <td class="meta-value">{{ $meta['planned_culture'] ?? 'N/D' }}</td>
+                    <td class="meta-label">Date Prélèvement :</td>
+                    <td class="meta-value">{{ $meta['date_sample'] ?? 'N/D' }}</td>
+                </tr>
+            </table>
+
+            <div class="title">Contrôle Qualité & Préparation</div>
+            <table class="meta-section">
+                <tr>
+                    <td class="meta-label">QC Critères :</td>
+                    <td class="meta-value">
+                        Quantité ({{ ($meta['qc_qty'] ?? false) ? '✓ OK' : '✗ Insuffisant' }}),
+                        Contamination ({{ ($meta['qc_contamination'] ?? false) ? '✓ Propre' : '✗ Contaminé' }}),
+                        Humidité ({{ ($meta['qc_humidity'] ?? false) ? '✓ OK' : '✗ Humide' }})
+                    </td>
+                    <td class="meta-label">QC Décision :</td>
+                    <td class="meta-value" style="font-weight: bold; color: {{ ($meta['qc_decision'] ?? '') === 'Accepte' ? '#16803d' : '#b91c1c' }};">
+                        {{ $meta['qc_decision'] ?? 'N/D' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Préparation :</td>
+                    <td class="meta-value" colspan="3">
+                        Séchage : {{ $meta['prep_drying_temp'] ?? '—' }}°C ({{ $meta['prep_drying_start'] ?? '—' }} au {{ $meta['prep_drying_end'] ?? '—' }}),
+                        Broyage : {{ $meta['prep_grinding_type'] ?? '—' }} (Maille: {{ $meta['prep_sieving_mesh'] ?? '—' }} mm),
+                        Stockage : Armoire {{ $meta['prep_storage_cab'] ?? '—' }} / Étagère {{ $meta['prep_storage_shelf'] ?? '—' }} / Bac {{ $meta['prep_storage_bin'] ?? '—' }}
+                    </td>
+                </tr>
+            </table>
+        @elseif(isset($meta['module']) && $meta['module'] === 'eau')
+            <div class="title">Provenance de l'Eau & Réception</div>
+            <table class="meta-section">
+                <tr>
+                    <td class="meta-label">Nom du Client :</td>
+                    <td class="meta-value">{{ $meta['client_name'] ?? 'N/D' }}</td>
+                    <td class="meta-label">Source de l'Eau :</td>
+                    <td class="meta-value" style="font-weight: bold; color: #1e3a8a;">{{ $meta['water_source'] ?? 'N/D' }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Téléphone :</td>
+                    <td class="meta-value">{{ $meta['client_phone'] ?? 'N/D' }}</td>
+                    <td class="meta-label">Préleveur :</td>
+                    <td class="meta-value">{{ $meta['water_sampler'] ?? 'N/D' }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Date/Heure Prélèvement :</td>
+                    <td class="meta-value">{{ $meta['water_sample_time'] ?? 'N/D' }}</td>
+                    <td class="meta-label">Température Eau :</td>
+                    <td class="meta-value">{{ $meta['water_temp'] ?? 'N/D' }} °C</td>
+                </tr>
+            </table>
+
+            <div class="title">Contrôle Qualité & Calculs d'Irrigation</div>
+            <table class="meta-section">
+                <tr>
+                    <td class="meta-label">QC Critères :</td>
+                    <td class="meta-value">
+                        Bouteille ({{ ($meta['qc_bottle'] ?? false) ? '✓ Propre' : '✗ Sale' }}),
+                        Volume ({{ ($meta['qc_volume'] ?? false) ? '✓ OK' : '✗ Insuffisant' }}),
+                        Délai ({{ ($meta['qc_delay'] ?? false) ? '✓ OK' : '✗ Dépassé' }})
+                    </td>
+                    <td class="meta-label">QC Décision :</td>
+                    <td class="meta-value" style="font-weight: bold; color: {{ ($meta['qc_decision'] ?? '') === 'Accepte' ? '#16803d' : '#b91c1c' }};">
+                        {{ $meta['qc_decision'] ?? 'N/D' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Indice SAR :</td>
+                    <td class="meta-value" style="font-weight: bold; color: #0284c7;">{{ $meta['water_sar'] ?? 'N/D' }}</td>
+                    <td class="meta-label">Indice RSC :</td>
+                    <td class="meta-value" style="font-weight: bold; color: #0284c7;">{{ $meta['water_rsc'] ?? 'N/D' }} meq/L</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Dureté Totale :</td>
+                    <td class="meta-value">{{ $meta['water_hardness'] ?? 'N/D' }} °fH</td>
+                    <td class="meta-label">Classification :</td>
+                    <td class="meta-value" style="font-weight: bold; color: #b45309; font-size: 13px;">{{ $meta['water_irrigation_class'] ?? 'N/D' }}</td>
+                </tr>
+            </table>
+        @endif
+    @endif
+
+    <div class="title">Résultats des Mesures Physico-Chimiques</div>
 
     <table class="results-table">
         <thead>
@@ -185,7 +292,7 @@
 
     @if($analysis->risk_score !== null)
     <div style="margin-top: 20px; margin-bottom: 30px; padding: 15px; border-radius: 8px; background-color: {{ $analysis->risk_score > 70 ? '#fef2f2' : ($analysis->risk_score > 35 ? '#fffbeb' : '#f0fdf4') }}; border-left: 5px solid {{ $analysis->risk_score > 70 ? '#ef4444' : ($analysis->risk_score > 35 ? '#f59e0b' : '#22c55e') }};">
-        <h3 style="margin-top: 0; color: {{ $analysis->risk_score > 70 ? '#991b1b' : ($analysis->risk_score > 35 ? '#92400e' : '#166534') }}; font-size: 14px; margin-bottom: 8px;">Évaluation Sanitaire Automatisée (Module Intelligence IA)</h3>
+        <h3 style="margin-top: 0; color: {{ $analysis->risk_score > 70 ? '#991b1b' : ($analysis->risk_score > 35 ? '#92400e' : '#166534') }}; font-size: 14px; margin-bottom: 8px;">Synthèse de Conformité Technique (Norme ISO 17025)</h3>
         <p style="margin: 0 0 8px 0; font-size: 13px;"><strong>Score Global de Risque :</strong> <span style="font-size: 15px; font-weight: bold; color: {{ $analysis->risk_score > 70 ? '#ef4444' : ($analysis->risk_score > 35 ? '#f59e0b' : '#22c55e') }};">{{ $analysis->risk_score }}%</span></p>
         <p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.5;"><strong>Recommandation :</strong> {{ $analysis->ai_recommendation }}</p>
     </div>

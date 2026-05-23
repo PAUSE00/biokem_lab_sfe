@@ -14,11 +14,13 @@ class Analysis extends Model
         'validated_at',
         'risk_score',
         'ai_recommendation',
+        'metadata',
     ];
 
     protected $casts = [
         'parameters' => 'array',
         'validated_at' => 'datetime',
+        'metadata' => 'array',
     ];
 
     public function sample()

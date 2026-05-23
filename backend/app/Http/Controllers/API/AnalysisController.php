@@ -25,7 +25,8 @@ class AnalysisController extends Controller
             'sample_id' => 'required|exists:samples,id',
             'user_id' => 'nullable|exists:users,id',
             'parameters' => 'nullable|array',
-            'status' => 'nullable|string'
+            'status' => 'nullable|string',
+            'metadata' => 'nullable|array',
         ]);
 
         $analysis = \App\Models\Analysis::create([
@@ -33,6 +34,7 @@ class AnalysisController extends Controller
             'user_id' => $validated['user_id'] ?? null,
             'parameters' => $validated['parameters'] ?? ['pH', 'Turbidity', 'Conductivity'],
             'status' => $validated['status'] ?? 'En attente',
+            'metadata' => $validated['metadata'] ?? null,
         ]);
 
         return response()->json($analysis->load(['sample', 'technician']), 201);
@@ -57,6 +59,7 @@ class AnalysisController extends Controller
             'results.*.unit' => 'nullable|string',
             'results.*.reference_min' => 'nullable|numeric',
             'results.*.reference_max' => 'nullable|numeric',
+            'metadata' => 'nullable|array',
         ]);
 
         $hasAnomaly = false;
@@ -170,6 +173,7 @@ class AnalysisController extends Controller
             'validated_at' => now(),
             'risk_score' => $riskScore,
             'ai_recommendation' => $aiRec,
+            'metadata' => $validated['metadata'] ?? $analysis->metadata,
         ]);
 
         // General "Report Ready" Notification

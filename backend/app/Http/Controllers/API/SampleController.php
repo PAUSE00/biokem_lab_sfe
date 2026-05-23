@@ -32,6 +32,7 @@ class SampleController extends Controller
             'temp_value' => 'nullable|numeric',
             'sampled_at' => 'nullable|date',
             'description' => 'nullable|string',
+            'metadata' => 'nullable|array',
         ]);
 
         $status = 'Reçu';
@@ -120,6 +121,7 @@ class SampleController extends Controller
             'sampled_at' => $sampledAt,
             'description' => $description,
             'received_at' => $receivedAt,
+            'metadata' => $validated['metadata'] ?? null,
         ]);
 
         if ($hasChecklistDeviation) {
@@ -197,6 +199,7 @@ class SampleController extends Controller
             'temp_value' => 'nullable|numeric',
             'sampled_at' => 'nullable|date',
             'description' => 'nullable|string',
+            'metadata' => 'nullable|array',
         ]);
 
         $oldStatus = $sample->status;

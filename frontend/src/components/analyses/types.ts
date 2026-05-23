@@ -9,6 +9,22 @@ export interface Sample {
   id: number;
   code: string;
   type?: string;
+  client_id?: number | null;
+  technician_id?: number | null;
+  parent_id?: number | null;
+  status?: string;
+  priority?: string;
+  storage_location?: string;
+  volume?: string;
+  temp_condition?: string;
+  temp_value?: number | null;
+  sampled_at?: string | null;
+  received_at?: string | null;
+  description?: string | null;
+  created_at?: string;
+  client?: { id: number; name: string; role: string; email?: string };
+  technician?: { id: number; name: string; role: string };
+  metadata?: any;
 }
 
 export interface Technician {
@@ -40,6 +56,7 @@ export interface Analysis {
   sample?: Sample;
   technician?: Technician;
   results?: AnalysisResult[];
+  metadata?: any;
 }
 
 export interface Hazard {
@@ -49,7 +66,6 @@ export interface Hazard {
   color: string;
 }
 
-/* ─── Parameter catalogue ───────────────────────────────────────────────── */
 export const PARAM_CATALOGUE = [
   { key: 'pH',           label: 'pH',           unit: '',       min: 6.0,  max: 9.0,   icon: 'droplet', description: "Mesure de l'acidité ou de la basicité. Idéalement neutre." },
   { key: 'Turbidité',    label: 'Turbidité',    unit: 'NTU',    min: 0,    max: 5.0,   icon: 'wind',    description: "Mesure de la clarté. Indique la présence de matières en suspension." },
@@ -60,6 +76,20 @@ export const PARAM_CATALOGUE = [
   { key: 'Argile',        label: 'Argile',        unit: '%',      min: 0.0,  max: 100.0, icon: 'layers',  description: "Fraction granulométrique fine (< 2 µm) retenant l'eau et les nutriments." },
   { key: 'Limon',         label: 'Limon',         unit: '%',      min: 0.0,  max: 100.0, icon: 'grid',    description: "Fraction intermédiaire (2 - 50 µm) conférant une bonne texture au sol." },
   { key: 'Sable',         label: 'Sable',         unit: '%',      min: 0.0,  max: 100.0, icon: 'filter',  description: "Fraction grossière (50 µm - 2 mm) assurant l'aération et le drainage." },
+  { key: 'Matière organique', label: 'Matière organique', unit: '%', min: 0.0, max: 10.0, icon: 'layers', description: "Taux de matière organique. Essentiel pour la structure et la fertilité du sol." },
+  { key: 'Azote',        label: 'Azote (N)',    unit: 'ppm',    min: 0.0,  max: 200.0, icon: 'wind',    description: "Azote minéral disponible pour la croissance des plantes." },
+  { key: 'Phosphore',    label: 'Phosphore (P)', unit: 'ppm',    min: 0.0,  max: 100.0, icon: 'flask',   description: "Phosphore assimilable indispensable au développement racinaire." },
+  { key: 'Potassium',    label: 'Potassium (K)', unit: 'ppm',    min: 0.0,  max: 500.0, icon: 'beaker',  description: "Potassium échangeable régulant l'eau et la résistance de la plante." },
+  { key: 'Calcium',      label: 'Calcium (Ca)',  unit: 'mg/L',   min: 0.0,  max: 1000.0, icon: 'beaker',  description: "Teneur en calcium. Important pour la structure du sol et la dureté de l'eau." },
+  { key: 'Magnésium',    label: 'Magnésium (Mg)', unit: 'mg/L',   min: 0.0,  max: 500.0,  icon: 'beaker',  description: "Teneur en magnésium. Constituant de la chlorophylle et de la dureté." },
+  { key: 'Sodium',       label: 'Sodium (Na)',   unit: 'mg/L',   min: 0.0,  max: 500.0,  icon: 'beaker',  description: "Teneur en sodium. Risque d'alcalinisation ou de sodisation." },
+  { key: 'Calcaire total', label: 'Calcaire total', unit: '%',    min: 0.0,  max: 50.0,   icon: 'grid',    description: "Proportion totale de carbonate de calcium (CaCO3) du sol." },
+  { key: 'CEC',          label: 'CEC',          unit: 'cmole/kg', min: 0.0, max: 50.0,  icon: 'layers',  description: "Capacité d'Échange Cationique du sol. Pouvoir de rétention des nutriments." },
+  { key: 'TDS',          label: 'TDS',          unit: 'mg/L',   min: 0.0,  max: 2000.0, icon: 'zap',     description: "Total des Solides Dissous. Indicateur général de minéralisation." },
+  { key: 'Chlorures',    label: 'Chlorures (Cl)', unit: 'mg/L',   min: 0.0,  max: 1000.0, icon: 'filter',  description: "Teneur en ions chlorures. Toxique pour les cultures à haute dose." },
+  { key: 'Sulfates',     label: 'Sulfates (SO4)', unit: 'mg/L',   min: 0.0,  max: 500.0,  icon: 'filter',  description: "Teneur en sulfates. Source de soufre mais risque saline si excessive." },
+  { key: 'Bicarbonates',  label: 'Bicarbonates (HCO3)', unit: 'mg/L', min: 0.0, max: 500.0, icon: 'filter', description: "Teneur en bicarbonates. Impacte l'alcalinité et le risque RSC." },
+  { key: 'Carbonates',   label: 'Carbonates (CO3)', unit: 'mg/L', min: 0.0,  max: 100.0,  icon: 'filter',  description: "Teneur en carbonates libres dans l'eau." },
 ] as const;
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */

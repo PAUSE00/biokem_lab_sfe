@@ -22,12 +22,14 @@ class Sample extends Model
         'description',
         'sampled_at',
         'received_at',
+        'metadata',
     ];
 
     protected $casts = [
         'received_at' => 'datetime',
         'sampled_at' => 'datetime',
         'temp_value' => 'float',
+        'metadata' => 'array',
     ];
 
     public function parent()
