@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Beaker, Home, Users, LogOut, FileText, Activity, Bell, AlertCircle, CheckCircle2, Calendar, Package, History, Radio } from 'lucide-react';
+import { Beaker, Home, Users, LogOut, FileText, Activity, Bell, AlertCircle, CheckCircle2, Calendar, Package, History, Radio, ChevronLeft } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../services/AuthContext';
 import LaboratoryBackground from '../components/LaboratoryBackground';
@@ -11,6 +11,13 @@ export default function DashboardLayout() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [systemUptime, setSystemUptime] = useState('00:00:00');
+  const [isCollapsed, setIsCollapsed] = useState(() => localStorage.getItem('sidebar_collapsed') === 'true');
+
+  const toggleSidebar = () => {
+    const nextState = !isCollapsed;
+    setIsCollapsed(nextState);
+    localStorage.setItem('sidebar_collapsed', String(nextState));
+  };
 
   useEffect(() => {
     fetchNotifications();
@@ -84,29 +91,54 @@ export default function DashboardLayout() {
       <LaboratoryBackground />
       
       {/* Sidebar */}
-      <aside className="w-60 bg-[#0d131f]/80 backdrop-blur-md border-r border-[#1e293b] flex flex-col z-20 shrink-0">
+      <aside className={`${isCollapsed ? 'w-16' : 'w-60'} bg-[#0d131f]/80 backdrop-blur-md border-r border-[#1e293b] flex flex-col z-20 shrink-0 transition-all duration-300`}>
         {/* Brand Header */}
-        <div className="h-14 flex items-center px-5 border-b border-[#1e293b]">
-          <div className="flex items-center gap-3">
-            <div className="bg-[#00f0ff]/10 border border-[#00f0ff]/30 p-2 rounded-lg text-[#00f0ff] shadow-[0_0_10px_rgba(0,240,255,0.15)] animate-pulse">
-              <Beaker className="w-4 h-4" />
+        {!isCollapsed ? (
+          <div className="h-14 flex items-center justify-between px-4 border-b border-[#1e293b]">
+            <div className="flex items-center gap-2">
+              <div className="bg-[#00f0ff]/10 border border-[#00f0ff]/30 p-2 rounded-lg text-[#00f0ff] shadow-[0_0_10px_rgba(0,240,255,0.15)] animate-pulse">
+                <Beaker className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-extrabold tracking-wider text-[#00f0ff] glow-cyan">CHEMLAB LIMS</span>
+                <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">CORE CONSOLE V4.2</span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-extrabold tracking-wider text-[#00f0ff] glow-cyan">CHEMLAB LIMS</span>
-              <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">CORE CONSOLE V4.2</span>
-            </div>
+            <button 
+              onClick={toggleSidebar} 
+              className="p-1 rounded bg-slate-900 border border-[#1e293b] text-slate-400 hover:text-[#00f0ff] hover:border-[#00f0ff]/30 transition-all cursor-pointer shadow-[0_0_5px_rgba(0,0,0,0.5)]"
+              title="Réduire le menu"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
           </div>
-        </div>
+        ) : (
+          <div className="h-14 flex items-center justify-center border-b border-[#1e293b]">
+            <button 
+              onClick={toggleSidebar} 
+              className="p-2 bg-[#00f0ff]/10 border border-[#00f0ff]/30 rounded-lg text-[#00f0ff] hover:bg-[#00f0ff]/20 transition-all cursor-pointer relative group shadow-[0_0_10px_rgba(0,240,255,0.1)]"
+            >
+              <Beaker className="w-4 h-4 animate-pulse" />
+              <span className="absolute left-full ml-3 px-2 py-1 rounded bg-[#0d131f] border border-[#1e293b] text-[9px] text-[#00f0ff] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-30 shadow-2xl">
+                Développer le menu
+              </span>
+            </button>
+          </div>
+        )}
 
         {/* Sidebar Nav links */}
-        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-          <div className="px-2 mb-3 text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">Main Modules</div>
+        <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
+          {!isCollapsed && (
+            <div className="px-2 mb-3 text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+              Main Modules
+            </div>
+          )}
           {visibleMenuItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `group flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all duration-300 ${
+                `group flex items-center ${isCollapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3.5 py-2.5'} rounded-lg text-xs font-bold transition-all duration-300 relative ${
                   isActive
                     ? 'bg-[#00f0ff] text-[#070b11] shadow-[0_0_15px_rgba(0,240,255,0.25)] font-extrabold'
                     : 'text-slate-400 hover:bg-[#151c2c] hover:text-[#00f0ff]'
@@ -114,19 +146,29 @@ export default function DashboardLayout() {
               }
             >
               <item.icon className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" />
-              <span>{item.label}</span>
+              {!isCollapsed && <span>{item.label}</span>}
+              {isCollapsed && (
+                <span className="absolute left-full ml-3 px-2 py-1 rounded bg-[#0d131f] border border-[#1e293b] text-[9px] text-slate-200 font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-30 shadow-2xl">
+                  {item.label}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
 
         {/* Logout section */}
-        <div className="p-4 border-t border-[#1e293b] bg-[#090e18]/60">
+        <div className={`p-4 border-t border-[#1e293b] bg-[#090e18]/60 ${isCollapsed ? 'flex justify-center' : ''}`}>
           <button 
             onClick={logout}
-            className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-xs font-bold text-slate-400 hover:bg-rose-500/10 hover:text-[#ff2e63] border border-transparent hover:border-[#ff2e63]/25 transition-all duration-300 cursor-pointer"
+            className={`group flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} py-2.5 w-full rounded-lg text-xs font-bold text-slate-400 hover:bg-rose-500/10 hover:text-[#ff2e63] border border-transparent hover:border-[#ff2e63]/25 transition-all duration-300 cursor-pointer relative`}
           >
             <LogOut className="w-4 h-4 shrink-0" />
-            <span>Déconnexion</span>
+            {!isCollapsed && <span>Déconnexion</span>}
+            {isCollapsed && (
+              <span className="absolute left-full ml-3 px-2 py-1 rounded bg-[#0d131f] border border-[#1e293b] text-[9px] text-[#ff2e63] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-30 shadow-2xl">
+                Déconnexion
+              </span>
+            )}
           </button>
         </div>
       </aside>
