@@ -111,6 +111,14 @@ export default function Analyses() {
     'Anomalie':   analyses.filter(a => a.status === 'Anomalie').length,
   }), [analyses]);
 
+  const findAnalysisBySlot = (rIdx: number, cIdx: number) => {
+    return analyses.find(a => {
+      const row = Math.floor((a.id - 1) / 5);
+      const col = ((a.id - 1) % 5) + 1;
+      return (row % 4) === rIdx && col === cIdx;
+    });
+  };
+
   const handleFormSubmitSuccess = async (createdId?: number) => {
     await fetchAnalyses();
     if (createdId) {
@@ -192,6 +200,60 @@ export default function Analyses() {
               />
             </div>
 
+            {/* Well Plate Matrix Grid */}
+            <div className="bg-[#070b11] border border-[#1e293b] rounded-lg p-2.5">
+              <div className="flex justify-between items-center mb-1.5 text-[8px] font-mono text-slate-500 uppercase tracking-widest">
+                <span>MATRICE DE PLACEMENT DU RACK</span>
+                <span className="text-primary font-bold">GRILLE 5x4</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                {[0, 1, 2, 3].map(rIdx => {
+                  const rowLabel = String.fromCharCode(65 + rIdx);
+                  return (
+                    <div key={rIdx} className="flex items-center gap-2">
+                      <span className="text-[8px] font-mono text-slate-600 w-3 text-center">{rowLabel}</span>
+                      <div className="flex-1 flex justify-between">
+                        {[1, 2, 3, 4, 5].map(cIdx => {
+                          const slotAn = findAnalysisBySlot(rIdx, cIdx);
+                          const isSlotSelected = slotAn && selectedAnalysisId === slotAn.id;
+                          
+                          let statusColor = 'bg-slate-900 border-slate-800/80 text-slate-700';
+                          if (slotAn) {
+                            if (slotAn.status === 'Validé') statusColor = 'bg-emerald-500/80 border-emerald-400/30';
+                            else if (slotAn.status === 'Anomalie') statusColor = 'bg-rose-500/80 border-rose-400/30';
+                            else if (slotAn.status === 'En cours') statusColor = 'bg-sky-500/80 border-sky-400/30';
+                            else statusColor = 'bg-amber-500/80 border-amber-400/30';
+                          }
+
+                          return (
+                            <button
+                              key={cIdx}
+                              disabled={!slotAn}
+                              onClick={() => slotAn && setSelectedAnalysisId(slotAn.id)}
+                              title={slotAn ? `Slot ${rowLabel}${cIdx} : AN-${slotAn.id.toString().padStart(4, '0')} (${slotAn.status})` : `Slot ${rowLabel}${cIdx} libre`}
+                              className={`w-3 h-3 rounded-full border flex items-center justify-center transition-all ${statusColor} ${
+                                isSlotSelected 
+                                  ? 'ring-1 ring-primary ring-offset-1 ring-offset-[#070b11] scale-110 shadow-[0_0_8px_rgba(0,240,255,0.4)]' 
+                                  : slotAn ? 'hover:scale-105 cursor-pointer hover:border-slate-400' : 'opacity-20 cursor-not-allowed'
+                              }`}
+                            >
+                              {isSlotSelected && <span className="w-1 h-1 rounded-full bg-white animate-ping" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex justify-between items-center mt-2 pt-1.5 border-t border-[#1e293b]/40 text-[7px] font-mono text-slate-500">
+                <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Attente</div>
+                <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-sky-500" /> En cours</div>
+                <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Validé</div>
+                <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Anomalie</div>
+              </div>
+            </div>
+
             {/* Status Tabs */}
             <div className="flex gap-1 overflow-x-auto pb-0.5 scrollbar-thin">
               {STATUS_TABS.map(tab => {
@@ -255,9 +317,18 @@ export default function Analyses() {
                     {/* Meta info */}
                     <div className="flex-grow min-w-0 flex flex-col">
                       <div className="flex items-center justify-between">
-                        <span className={`font-mono text-xs font-black ${isSelected ? 'text-primary glow-cyan' : 'text-slate-200'}`}>
-                          AN-{analysis.id.toString().padStart(4, '0')}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[8px] bg-slate-950 border border-slate-800 text-slate-500 px-1 py-0.2 rounded font-mono font-bold">
+                            {(() => {
+                              const r = Math.floor((analysis.id - 1) / 5);
+                              const c = ((analysis.id - 1) % 5) + 1;
+                              return `${String.fromCharCode(65 + (r % 4))}${c}`;
+                            })()}
+                          </span>
+                          <span className={`font-mono text-xs font-black ${isSelected ? 'text-primary glow-cyan' : 'text-slate-200'}`}>
+                            AN-{analysis.id.toString().padStart(4, '0')}
+                          </span>
+                        </div>
                         {/* LED status light */}
                         <div className="flex items-center gap-1.5">
                           <span className={`w-1.5 h-1.5 rounded-full ${

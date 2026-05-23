@@ -718,9 +718,17 @@ export default function SpectrometerConsole({
       {/* Viewport Top Bar */}
       <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse" />
+          <span className="text-[9.5px] bg-slate-950 border border-slate-800 text-[#00f0ff] px-2 py-0.5 rounded font-mono font-bold tracking-wider">
+            SLOT {(() => {
+              const id = activeAnalysis.id;
+              const rowIndex = Math.floor((id - 1) / 5);
+              const colIndex = ((id - 1) % 5) + 1;
+              return `${String.fromCharCode(65 + (rowIndex % 4))}${colIndex}`;
+            })()}
+          </span>
           <div>
-            <h3 className="text-xs font-bold font-mono tracking-widest text-teal-400 uppercase">
+            <h3 className="text-xs font-bold font-mono tracking-widest text-[#00f0ff] uppercase glow-cyan flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-ping" />
               CONSOLE {metadata.module === 'sol' ? 'SOL / FERTILITÉ' : 'ACQUISITION EAU'} #AN-{activeAnalysis.id.toString().padStart(4, '0')}
             </h3>
             <p className="text-[9px] text-slate-400 font-mono mt-0.5">
@@ -1545,7 +1553,7 @@ export default function SpectrometerConsole({
                 </div>
               </div>
 
-              <form onSubmit={handleStartScan} className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+              <form onSubmit={handleStartScan} className="space-y-3.5 max-h-[480px] overflow-y-auto pr-1">
                 {activeAnalysis.parameters?.map(param => {
                   const meta = PARAM_CATALOGUE.find(p => p.key === param);
                   const rawVal = resultsForm[param] ?? '';
@@ -1554,54 +1562,55 @@ export default function SpectrometerConsole({
                   const step = param === 'pH' || param === 'Zinc' || param === 'Matière organique' ? '0.05' : '1';
 
                   return (
-                    <div key={param} className="flex flex-col gap-1.5 bg-slate-950/50 p-2.5 rounded-lg border border-slate-850">
-                      <div className="flex items-center justify-between text-[10px]">
-                        <label className="flex items-center gap-1.5 font-bold text-slate-300 font-mono">
+                    <div key={param} className="flex flex-col gap-2.5 bg-[#090e17]/80 p-3 rounded-lg border border-slate-850 hover:border-teal-500/20 transition-all duration-300">
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-2 text-[10px] font-bold text-slate-300 font-mono uppercase tracking-wider">
                           {meta ? paramIcon(meta.icon) : <TestTube className="w-3.5 h-3.5" />}
                           {meta?.label ?? param}
                         </label>
-                        {out && (
-                          <span className="text-[8px] font-bold text-amber-400 bg-amber-950/20 border border-amber-500/20 px-1 py-0.2 rounded font-mono">
-                            ⚠ {hint}
-                          </span>
-                        )}
-                      </div>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          step="any"
-                          required
-                          value={rawVal}
-                          onChange={e => setResultsForm({ ...resultsForm, [param]: e.target.value })}
-                          className={`w-full px-3 py-1.5 border rounded-lg font-mono text-xs focus:outline-none transition-all ${
-                            out
-                              ? 'border-amber-500/50 bg-amber-950/20 text-amber-200'
-                              : 'border-slate-800 bg-slate-950 text-slate-100 focus:border-teal-500/50'
-                          }`}
-                          placeholder="0.00"
-                        />
-                        {meta?.unit && (
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-slate-500 font-mono">
-                            {meta.unit}
-                          </span>
-                        )}
-                      </div>
-                      {meta && (
-                        <div className="flex items-center gap-2 px-1">
-                          <input
-                            type="range"
-                            min={meta.min}
-                            max={meta.max}
-                            step={step}
-                            value={parseFloat(rawVal) || meta.min}
-                            onChange={e => setResultsForm({ ...resultsForm, [param]: e.target.value })}
-                            className="flex-1 accent-teal-500 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer"
-                          />
-                          <span className="text-[7px] font-mono text-slate-500">
-                            {meta.min}–{meta.max}
+                        <div className="flex items-center gap-2">
+                          {out && (
+                            <span className="text-[8px] font-bold text-amber-400 bg-amber-950/40 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono animate-pulse">
+                              ⚠ {hint}
+                            </span>
+                          )}
+                          <span className="text-[11px] font-mono font-black text-teal-400 bg-slate-950 border border-slate-800/80 px-2 py-0.5 rounded tracking-wide shadow-[0_0_8px_rgba(45,212,191,0.08)] min-w-[70px] text-center">
+                            {rawVal ? `${parseFloat(rawVal).toFixed(2)}` : '—'} <span className="text-[8px] text-slate-500 font-normal">{meta?.unit}</span>
                           </span>
                         </div>
-                      )}
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 items-center">
+                        <div className="col-span-2">
+                          {meta && (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="range"
+                                min={meta.min}
+                                max={meta.max}
+                                step={step}
+                                value={parseFloat(rawVal) || meta.min}
+                                onChange={e => setResultsForm({ ...resultsForm, [param]: e.target.value })}
+                                className="flex-grow accent-teal-500 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            step="any"
+                            required
+                            value={rawVal}
+                            onChange={e => setResultsForm({ ...resultsForm, [param]: e.target.value })}
+                            className={`w-full px-2.5 py-1.5 bg-slate-950 border rounded-lg font-mono text-[11px] text-center text-slate-100 focus:outline-none transition-all ${
+                              out
+                                ? 'border-amber-500/50 bg-amber-950/20 text-amber-200 focus:border-amber-500'
+                                : 'border-slate-800 focus:border-teal-500/50'
+                            }`}
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
@@ -1793,6 +1802,25 @@ export default function SpectrometerConsole({
           </div>
         )}
 
+      </div>
+
+      {/* Laboratory Instrument Telemetry Footer */}
+      <div className="h-10 bg-slate-950 border-t border-slate-800 flex items-center justify-between px-4 shrink-0 font-mono text-[9px] text-slate-500">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 text-teal-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-ping" />
+            INSTRUMENTATION : CONNECTÉE
+          </span>
+          <span className="h-3 w-px bg-slate-800" />
+          <span>LASER DIODE : PRÊT (532 nm)</span>
+          <span className="h-3 w-px bg-slate-800" />
+          <span>T° DE CUVE : 25.0 °C (CALIBRÉ)</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span>DÉBIT : 1.2 ml/min</span>
+          <span className="h-3 w-px bg-slate-800" />
+          <span className="text-[#00f0ff] uppercase">PROTOCOLE : ISO 17025 v4.0</span>
+        </div>
       </div>
     </div>
   );
