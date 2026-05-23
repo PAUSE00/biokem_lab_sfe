@@ -652,31 +652,257 @@ export default function SpectrometerConsole({
 
   if (!activeAnalysis) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-950 border border-slate-800 rounded-xl relative overflow-hidden h-full min-h-[500px]">
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: 'linear-gradient(to right, #2dd4bf 1px, transparent 1px), linear-gradient(to bottom, #2dd4bf 1px, transparent 1px)',
-          backgroundSize: '20px 20px'
-        }} />
-        <div className="absolute w-80 h-80 rounded-full border border-teal-500/10 flex items-center justify-center animate-ping" style={{ animationDuration: '4s' }} />
-        <div className="relative z-10 text-center max-w-sm flex flex-col items-center gap-5">
-          <div className="w-14 h-14 rounded-full border border-teal-500/30 flex items-center justify-center text-teal-400 bg-slate-900 shadow-[0_0_15px_rgba(45,212,191,0.15)]">
-            <Activity className="w-7 h-7 animate-[pulse_2s_infinite]" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold font-mono tracking-widest text-teal-400 uppercase">
-              WORKSPACE LIMS CLINIQUE
+      <div className="flex-1 flex flex-col h-full bg-slate-950 border border-slate-800 rounded-xl overflow-hidden text-white relative select-none">
+        
+        {/* Workspace Top Bar / Tabs */}
+        <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] bg-slate-950 border border-slate-800 text-[#00f0ff] px-2 py-0.5 rounded font-mono font-bold uppercase tracking-wider">
+              SYS.DIAG
+            </span>
+            <h3 className="text-xs font-bold font-mono tracking-widest text-[#00f0ff] uppercase glow-cyan flex items-center gap-1.5">
+              CONSOLES ET WORKSPACES ACTIFS
             </h3>
-            <p className="text-[9px] text-slate-500 font-mono mt-1">LOGICIEL D'ANALYSE SOUL & WATER // IDLE</p>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Sélectionnez un flacon ou une fiche de laboratoire dans le rack d'analyses pour lancer la console en 7 phases réglementaires.
-          </p>
-          <button
-            onClick={onScheduleClick}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-800 hover:bg-teal-700 text-white font-mono text-xs font-bold uppercase rounded-lg border border-teal-500/30 transition-all"
-          >
-            <Plus className="w-3.5 h-3.5" /> Planifier Demande
-          </button>
+          <div className="flex gap-1.5">
+            {['Synthèse Clinique', 'Spectrométrie 1', 'Capteurs 2', 'Calibration'].map(tab => (
+              <button
+                key={tab}
+                disabled={tab !== 'Synthèse Clinique'}
+                className={`px-3 py-1 rounded text-[9.5px] font-mono font-bold uppercase transition-all ${
+                  tab === 'Synthèse Clinique'
+                    ? 'bg-teal-500/10 text-[#00f0ff] border border-teal-500/30'
+                    : 'text-slate-500 cursor-not-allowed'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Synthesis Workspace */}
+        <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-950/40 flex flex-col min-h-0">
+          
+          {/* Visual flowchart grid */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-center bg-[#070b11]/70 p-3.5 rounded-xl border border-slate-800/80 relative overflow-hidden shrink-0">
+            {/* 1. SELECTION & ACQUISITION */}
+            <div className="md:col-span-1.5 flex flex-col gap-3.5">
+              {/* Selection Card */}
+              <div className="bg-slate-950/90 border border-slate-850 p-2.5 rounded-lg flex flex-col gap-1.5 shadow-lg hover:border-teal-500/20 transition-all duration-300">
+                <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">SÉLECTION DU FLACON</div>
+                <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-3 gap-1 shrink-0 p-1 bg-slate-900 border border-slate-800 rounded">
+                    {[0, 1, 2, 3, 4, 5].map(i => (
+                      <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === 2 ? 'bg-emerald-500' : i === 4 ? 'bg-sky-500' : 'bg-slate-800'}`} />
+                    ))}
+                  </div>
+                  <div className="text-[9px] font-mono text-slate-400">
+                    <div>AN-0001 (A1)</div>
+                    <div className="text-slate-500 text-[8px]">Argiles & pH</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Spectro Card */}
+              <div className="bg-slate-950/90 border border-slate-850 p-2.5 rounded-lg flex flex-col gap-1.5 shadow-lg hover:border-teal-500/20 transition-all duration-300">
+                <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">ACQUISITION SPECTROMÉTRIQUE</div>
+                <div className="flex flex-col gap-1">
+                  <div className="h-1 bg-slate-900 border border-slate-800 rounded overflow-hidden relative">
+                    <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-teal-500 to-sky-500 w-2/3 animate-pulse" />
+                  </div>
+                  <div className="text-[8px] font-mono text-slate-500 flex justify-between">
+                    <span>Wavelength 532nm</span>
+                    <span className="text-teal-400">Active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Connection arrow 1 */}
+            <div className="hidden md:flex justify-center items-center">
+              <svg className="w-8 h-8 text-teal-500/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            {/* 2. CENTRE DE CONTROLE */}
+            <div className="md:col-span-1.5 flex justify-center">
+              <div className="bg-slate-950/95 border border-[#00f0ff]/30 p-4 rounded-xl flex flex-col items-center text-center gap-2 shadow-[0_0_15px_rgba(0,240,255,0.05)] max-w-[180px] w-full">
+                <div className="w-9 h-9 rounded-full bg-[#00f0ff]/10 border border-[#00f0ff]/30 flex items-center justify-center text-[#00f0ff] shadow-inner animate-pulse">
+                  <Beaker className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[9px] font-mono font-black text-[#00f0ff] uppercase tracking-wider">CENTRE CLINIQUE</div>
+                  <div className="text-[8px] font-mono text-slate-500 mt-0.5">CORE ENGINE V4.0</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Connection arrow 2 */}
+            <div className="hidden md:flex justify-center items-center">
+              <svg className="w-8 h-8 text-teal-500/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            {/* 3. STEPPERS */}
+            <div className="md:col-span-1 flex flex-col gap-2 bg-[#090e17]/80 p-2 rounded-lg border border-slate-850">
+              {[
+                { label: 'TRAITEMENT DONNÉES', active: true, icon: '⚙️' },
+                { label: 'VALIDATION ISO', active: false, icon: '🛡️' },
+                { label: 'GÉNÉRATION RAPPORT', active: false, icon: '📄' }
+              ].map((step, sIdx) => (
+                <div key={sIdx} className={`p-2 rounded flex items-center gap-2 border text-[8px] font-mono ${
+                  step.active
+                    ? 'bg-[#00f0ff]/5 border-[#00f0ff]/20 text-[#00f0ff]'
+                    : 'bg-slate-950 border-slate-850 text-slate-500'
+                }`}>
+                  <span className="text-[10px]">{step.icon}</span>
+                  <span className="font-bold">{step.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Chart & Parameters Table split view */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3.5 flex-grow min-h-0">
+            {/* Spectrum Graph (3/5 width) */}
+            <div className="lg:col-span-3 bg-slate-950/60 border border-slate-800 rounded-xl p-3 flex flex-col min-h-[200px]">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[8px] font-mono font-bold text-[#00f0ff] uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-ping" />
+                  VUE D'ENSEMBLE SPECTRALE (MULTI-ÉCHANTILLONS)
+                </span>
+                <span className="text-[8px] text-slate-500 font-mono">Absorbance (AU) / Longueur d'onde (nm)</span>
+              </div>
+              <div className="flex-1 min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={[
+                      { nm: '400nm', val1: 0.12, val2: 0.25, val3: 0.05 },
+                      { nm: '440nm', val1: 0.18, val2: 0.32, val3: 0.12 },
+                      { nm: '480nm', val1: 0.31, val2: 0.45, val3: 0.22 },
+                      { nm: '520nm', val1: 0.42, val2: 0.58, val3: 0.38 },
+                      { nm: '560nm', val1: 0.35, val2: 0.41, val3: 0.28 },
+                      { nm: '600nm', val1: 0.22, val2: 0.29, val3: 0.18 },
+                      { nm: '640nm', val1: 0.15, val2: 0.18, val3: 0.11 },
+                      { nm: '680nm', val1: 0.09, val2: 0.12, val3: 0.07 },
+                      { nm: '720nm', val1: 0.05, val2: 0.08, val3: 0.04 }
+                    ]}
+                    margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
+                  >
+                    <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                    <XAxis dataKey="nm" stroke="#475569" fontSize={8} tickLine={false} />
+                    <YAxis stroke="#475569" fontSize={8} tickLine={false} />
+                    <Tooltip contentStyle={{ background: '#0f172a', borderColor: '#1e293b', fontSize: '9px' }} />
+                    <Area type="monotone" dataKey="val1" stroke="#2dd4bf" strokeWidth={1.5} fillOpacity={0.08} fill="#0f766e" name="AN-0001" />
+                    <Area type="monotone" dataKey="val2" stroke="#a855f7" strokeWidth={1.5} fillOpacity={0.05} fill="#701a75" name="AN-0002" />
+                    <Area type="monotone" dataKey="val3" stroke="#38bdf8" strokeWidth={1.5} fillOpacity={0.05} fill="#0369a1" name="AN-0003" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Parameters list (2/5 width) */}
+            <div className="lg:col-span-2 bg-[#070b11]/80 border border-slate-800 rounded-xl p-3 flex flex-col min-h-[200px]">
+              <div className="text-[8px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
+                RÉSUMÉ ANALYTIQUE RECENT
+              </div>
+              <div className="flex-1 overflow-y-auto font-mono text-[9px] text-slate-350 min-h-0">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold">
+                      <th className="pb-1.5 font-normal">ID</th>
+                      <th className="pb-1.5 font-normal">PARAMÈTRES</th>
+                      <th className="pb-1.5 font-normal">pH</th>
+                      <th className="pb-1.5 font-normal text-right">ABS.</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { id: 'AN-0001', params: 'Clay, Silt, Sand', ph: '6.85', abs: '0.42' },
+                      { id: 'AN-0002', params: 'pH, EC, Salinity', ph: '7.20', abs: '0.58' },
+                      { id: 'AN-0003', params: 'CEC, Organic M.', ph: '6.40', abs: '0.31' },
+                      { id: 'AN-0004', params: 'Nitrate, Phosphate', ph: '6.90', abs: '0.15' }
+                    ].map(row => (
+                      <tr key={row.id} className="hover:bg-slate-900/40">
+                        <td className="py-2 text-[#00f0ff] font-bold">{row.id}</td>
+                        <td className="py-2 text-slate-400 truncate max-w-[110px]">{row.params}</td>
+                        <td className="py-2">{row.ph}</td>
+                        <td className="py-2 text-right text-teal-400">{row.abs}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom timeline of analysis */}
+          <div className="bg-[#070b11]/70 p-3 rounded-xl border border-slate-800/80 shrink-0">
+            <div className="text-[8px] font-mono font-bold text-slate-500 uppercase tracking-widest mb-2.5">
+              TIMELINE GÉNÉRALE DU WORKFLOW LIMS
+            </div>
+            <div className="flex items-center justify-between text-[8px] font-mono text-slate-400 overflow-x-auto pb-0.5">
+              {[
+                { id: 1, label: 'Préparation', desc: 'Séchage & broyage' },
+                { id: 2, label: 'Acquisition', desc: 'Scan spectrométrique' },
+                { id: 3, label: 'In-Progress', desc: 'Calculs physiques' },
+                { id: 4, label: 'Calibration', desc: 'Sondes optiques' },
+                { id: 5, label: 'Validation', desc: 'Double validation' },
+                { id: 6, label: 'Rapport', desc: 'Édition PDF' }
+              ].map((ph, idx, arr) => (
+                <div key={ph.id} className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-black border ${
+                      ph.id === 1 
+                        ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.4)]'
+                        : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}>
+                      {ph.id}
+                    </span>
+                    <div className="flex flex-col">
+                      <span className={`font-bold ${ph.id === 1 ? 'text-emerald-400' : 'text-slate-400'}`}>{ph.label}</span>
+                      <span className="text-[7px] text-slate-500 font-normal">{ph.desc}</span>
+                    </div>
+                  </div>
+                  {idx < arr.length - 1 && (
+                    <span className="w-8 h-px bg-slate-800 mx-2 shrink-0" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Planifier button */}
+          <div className="pt-1.5 flex justify-center shrink-0">
+            <button
+              onClick={onScheduleClick}
+              className="w-full max-w-sm py-2.5 bg-[#00f0ff] hover:bg-cyan-400 text-slate-950 font-mono text-xs font-black uppercase rounded-lg transition-all flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,240,255,0.25)] cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Planifier une nouvelle demande d'analyse
+            </button>
+          </div>
+        </div>
+
+        {/* Laboratory Instrument Telemetry Footer */}
+        <div className="h-10 bg-slate-950 border-t border-slate-800 flex items-center justify-between px-4 shrink-0 font-mono text-[9px] text-slate-500">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 text-teal-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-ping" />
+              INSTRUMENTATION : CONNECTÉE
+            </span>
+            <span className="h-3 w-px bg-slate-800" />
+            <span>LASER DIODE : PRÊT (532 nm)</span>
+            <span className="h-3 w-px bg-slate-800" />
+            <span>T° DE CUVE : 25.0 °C (CALIBRÉ)</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span>DÉBIT : 1.2 ml/min</span>
+            <span className="h-3 w-px bg-slate-800" />
+            <span className="text-[#00f0ff] uppercase">PROTOCOLE : ISO 17025 v4.0</span>
+          </div>
         </div>
       </div>
     );

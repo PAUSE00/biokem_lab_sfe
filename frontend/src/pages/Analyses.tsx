@@ -132,7 +132,7 @@ export default function Analyses() {
   };
 
   return (
-    <div className="space-y-4 flex flex-col h-full">
+    <div className="space-y-3.5 flex flex-col h-full flex-grow min-h-0 overflow-hidden">
       {/* ── Page Header ──────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 shrink-0">
         <div>
@@ -173,7 +173,7 @@ export default function Analyses() {
       </div>
 
       {/* ── Main Split-Pane Console ───────────────────────────────────────── */}
-      <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full lg:h-[calc(100vh-230px)] min-h-[550px] overflow-hidden relative">
+      <div className="flex flex-col lg:flex-row gap-4 flex-grow min-h-0 overflow-hidden relative">
         
         {/* LEFT PANEL: ACTIVE VIAL RACK */}
         <div className="w-full lg:w-[350px] flex flex-col h-full glass-panel border border-[#1e293b] rounded-xl overflow-hidden shadow-2xl shrink-0">

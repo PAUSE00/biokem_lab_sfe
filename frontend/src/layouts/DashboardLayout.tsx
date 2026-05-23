@@ -250,8 +250,8 @@ export default function DashboardLayout() {
         </header>
 
         {/* Content Box */}
-        <div className="flex-grow overflow-y-auto p-6 relative z-10">
-          <div className="w-full max-w-[1500px] mx-auto animate-in fade-in duration-300">
+        <div className="flex-grow overflow-hidden p-5 relative z-10 flex flex-col min-h-0">
+          <div className="w-full max-w-[1500px] mx-auto flex-grow flex flex-col min-h-0 animate-in fade-in duration-300">
             <Outlet />
           </div>
         </div>
