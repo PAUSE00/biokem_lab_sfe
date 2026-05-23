@@ -14,6 +14,10 @@
   --color-cyber-orange: #f59e0b;
 }
 
+html {
+  font-size: 108%;
+}
+
 :root {
   --primary: 188 100% 50%; /* #00f0ff cyan */
   --primary-foreground: 220 40% 5%; /* #070b11 */
